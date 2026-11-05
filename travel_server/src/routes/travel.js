@@ -4,22 +4,22 @@ import { createStream } from '../utils/createStream.js';
 const router = express.Router();    
 
 router.post('/chat', async(req, res) => {
-  const {message} = req.body;
-  if(!message) {
-    return res.status(400).json({
-      success: false,
-      message: 'Please provide a message!'
-    });
-  }
-   // 对SSE流式返回进行处理
-  const stream = createStream(res);
-  // 调用大模型获取流式响应
+    const {message} = req.body;
+    if(!message) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a message!'
+      });
+    }
+    // 对SSE流式返回进行处理
+    const stream = createStream(res);
+    // 调用大模型获取流式响应
     const result  = await TravelService.chat(message, (chunk) => {
       stream.send({type:'chunk' ,  message: chunk});
     });
     stream.send({type:'complete', data: result});
     stream.end();
-  }); 
+}); 
 
 router.post('/recommend', async(req, res) => {
    const {budget, days, destination} = req.body;
