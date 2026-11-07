@@ -1,7 +1,7 @@
 {
-  "name": "travel_server",
+  "name": "study_server",
   "version": "1.0.0",
-  "description": "express框架+langchain",
+  "description": "express框架+langchain 学习规划服务",
   "license": "ISC",
   "author": "alice",
   "type": "module",

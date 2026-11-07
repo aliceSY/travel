@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
-import travelRouter from './routes/travel.js';
+import studyRouter from './routes/study.js';
 
 import cors from 'cors';
 
@@ -11,9 +11,9 @@ app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-    
 
-app.use('/api/travel', travelRouter);
+
+app.use('/api/study', studyRouter);
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`Study server listening at http://localhost:${port}`);
 });

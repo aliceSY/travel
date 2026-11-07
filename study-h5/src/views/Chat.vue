@@ -1,7 +1,7 @@
 
 <template>
   <div class="chat-page">
-   <van-nav-bar fixed placeholder left-arrow title="AI旅游助手" @click-left="onClickLeft" />
+   <van-nav-bar fixed placeholder left-arrow title="AI学习助手" @click-left="onClickLeft" />
    <div class="page-content" ref="pageContentRef">
     <!-- 聊天内容：没有消息时显示空状态，有消息后渲染气泡列表 -->
     <van-empty v-if="streamMessage.length === 0" description="开始和AI助手对话吧" />
@@ -32,7 +32,7 @@ import ChatBubble from '@/components/ChatBubble.vue'
 
 
 const streamMessage = ref([]);
-const quickMessage = ref(["上海美食推荐","成都三日游攻略","北京有哪些必去的景点","如何选择旅行保险"]);
+const quickMessage = ref(["考研英语30天怎么复习？","高数基础差怎么补？","四六级备考顺序建议","如何高效背单词"]);
 
 const inputMessage = ref("")
 
@@ -113,8 +113,8 @@ const sendMessage = () => {
 
 
 onMounted(() => {
-  if(route.query.source === 'plan' && route.query.city) {
-    inputMessage.value = `请推荐${route.query.city}的旅游计划`;
+  if(route.query.source === 'plan' && route.query.subject) {
+    inputMessage.value = `请帮我制定${route.query.subject}的复习计划`;
   }
 })
 

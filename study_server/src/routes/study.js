@@ -1,7 +1,7 @@
 import express from 'express';
-import TravelService from '../services/travelService.js';
+import StudyService from '../services/studyService.js';
 import { createStream } from '../utils/createStream.js';
-const router = express.Router();    
+const router = express.Router();
 
 router.post('/chat', async(req, res) => {
     const {message} = req.body;
@@ -14,24 +14,23 @@ router.post('/chat', async(req, res) => {
     // 对SSE流式返回进行处理
     const stream = createStream(res);
     // 调用大模型获取流式响应
-    const result  = await TravelService.chat(message, (chunk) => {
+    const result  = await StudyService.chat(message, (chunk) => {
       stream.send({type:'chunk' ,  message: chunk});
     });
     stream.send({type:'complete', data: result});
     stream.end();
-}); 
+});
 
 router.post('/recommend', async(req, res) => {
-   const {budget, days, destination} = req.body;
-    if(!budget || !days || !destination) {
+   const {dailyHours, days, subject} = req.body;
+    if(!dailyHours || !days || !subject) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide budget, days, and destination!'
+        message: 'Please provide dailyHours, days, and subject!'
       });
     }
     try {
-      const recommendation = await TravelService.recommend(budget, days, destination);
-     console.log(recommendation);
+      const recommendation = await StudyService.recommend(dailyHours, days, subject);
       const fullResponse = recommendation.content || '';
       let resData;
       try {
@@ -56,4 +55,4 @@ router.post('/recommend', async(req, res) => {
 });
 
 
-export default router;                          
+export default router;

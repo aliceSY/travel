@@ -1,22 +1,22 @@
 <template>
   <div class="plan-page">
-    <van-nav-bar fixed placeholder left-arrow @click-left="onBack" :title="formData.destination + '行程规划'" />
+    <van-nav-bar fixed placeholder left-arrow @click-left="onBack" :title="formData.subject + '学习计划'" />
 
     <div class="page-content">
       <!-- 加载中 -->
       <van-loading v-if="isLoading" size="36px" vertical type="spinner" class="loading">
-        正在生成旅游规划 ...
+        正在生成学习计划 ...
       </van-loading>
 
       <!-- 失败：空状态 + 重试 -->
       <van-empty v-else-if="isError" :image="isEmpty ? 'default' : 'error'"
-        :description="isEmpty ? '暂无行程数据' : '行程规划生成失败，请重试'">
+        :description="isEmpty ? '暂无计划数据' : '学习计划生成失败，请重试'">
         <van-button round type="primary" class="retry-btn" @click="fetchPlan">
           重新生成
         </van-button>
       </van-empty>
 
-      <!-- 成功：渲染行程 -->
+      <!-- 成功：渲染计划 -->
       <template v-else-if="plan">
         <van-collapse v-model="activeNames" class="plan-collapse">
           <!-- 基本信息 -->
@@ -27,40 +27,40 @@
             </div>
           </van-collapse-item>
 
-          <!-- 预算分配 -->
-          <van-collapse-item v-if="plan['预算分配']" title="预算分配（元）" name="budget">
-            <div class="info-row" v-for="(value, key) in plan['预算分配']" :key="key">
+          <!-- 时长分配 -->
+          <van-collapse-item v-if="plan['时长分配']" title="时长分配（小时）" name="hours">
+            <div class="info-row" v-for="(value, key) in plan['时长分配']" :key="key">
               <span class="label">{{ key }}</span>
-              <span class="value money">¥{{ value }}</span>
+              <span class="value hours">{{ value }}h</span>
             </div>
           </van-collapse-item>
 
-          <!-- 每日行程：每天可单独收起 -->
-          <van-collapse-item v-for="(day, index) in plan['每日行程']" :key="day['天数']" :name="`day-${index}`">
+          <!-- 每日计划：每天可单独收起 -->
+          <van-collapse-item v-for="(day, index) in plan['每日计划']" :key="day['天数']" :name="`day-${index}`">
             <template #title>
               <span class="day-num">{{ day['天数'] }}</span>
               <span class="day-theme">{{ day['主题'] }}</span>
             </template>
-            <div class="timeline-item" v-for="(item, i) in day['行程']" :key="i">
+            <div class="timeline-item" v-for="(item, i) in day['安排']" :key="i">
               <span class="time">{{ item['时间'] }}</span>
-              <span class="desc">{{ item['安排'] }}</span>
+              <span class="desc">{{ item['内容'] }}</span>
             </div>
-            <div class="day-cost" v-if="day['当日花费预估']">
-              预计花费：{{ day['当日花费预估'] }}
+            <div class="day-task" v-if="day['当日学习任务']">
+              当日任务：{{ day['当日学习任务'] }}
             </div>
           </van-collapse-item>
 
-          <!-- 实用贴士 -->
-          <van-collapse-item v-if="plan['实用贴士'] && plan['实用贴士'].length" title="实用贴士" name="tips">
+          <!-- 学习建议 -->
+          <van-collapse-item v-if="plan['学习建议'] && plan['学习建议'].length" title="学习建议" name="tips">
             <ul class="tips">
-              <li v-for="(tip, index) in plan['实用贴士']" :key="index">{{ tip }}</li>
+              <li v-for="(tip, index) in plan['学习建议']" :key="index">{{ tip }}</li>
             </ul>
           </van-collapse-item>
         </van-collapse>
       </template>
     </div>
     <div class="consult-wrap">
-      <van-button v-if="plan" type="primary" block round class="consult-btn" @click="onConsult">/咨询AI助手</van-button>
+      <van-button v-if="plan" type="primary" block round class="consult-btn" @click="onConsult">咨询AI助手</van-button>
     </div>
   </div>
 </template>
@@ -78,8 +78,8 @@ const isEmpty = ref(false)
 const plan = ref(null)
 const activeNames = ref([])
 const formData = reactive({
-  destination: '',
-  budget: null,
+  subject: '',
+  dailyHours: null,
   days: null
 })
 
@@ -89,16 +89,16 @@ const fetchPlan = async () => {
   isEmpty.value = false
   try {
     const result = await post('/recommend', {
-      destination: formData.destination,
-      budget: formData.budget,
+      subject: formData.subject,
+      dailyHours: formData.dailyHours,
       days: formData.days
     })
-    plan.value = result.data?.['旅行计划'] || null
+    plan.value = result.data?.['学习计划'] || null
     // 默认全部展开
     activeNames.value = [
       'basic',
-      'budget',
-      ...(plan.value?.['每日行程'] || []).map((_, i) => `day-${i}`),
+      'hours',
+      ...(plan.value?.['每日计划'] || []).map((_, i) => `day-${i}`),
       'tips'
     ]
     if (!plan.value) {
@@ -106,7 +106,7 @@ const fetchPlan = async () => {
       isError.value = true
     }
   } catch (err) {
-    console.error('获取行程规划失败', err)
+    console.error('获取学习计划失败', err)
     isError.value = true
   } finally {
     isLoading.value = false
@@ -114,13 +114,13 @@ const fetchPlan = async () => {
 }
 
 onMounted(() => {
-  formData.destination = route.query.destination || ''
-  formData.budget = route.query.budget
+  formData.subject = route.query.subject || ''
+  formData.dailyHours = route.query.dailyHours
   formData.days = route.query.days
 
-  if (formData.destination && formData.budget && formData.days) {
+  if (formData.subject && formData.dailyHours && formData.days) {
     fetchPlan()
-  } 
+  }
 })
 
 const onBack = () => {
@@ -132,7 +132,7 @@ const onConsult = () => {
         path: '/chat',
         query: {
            source:'plan',
-           city: formData.destination
+           subject: formData.subject
         }
     })
 }
@@ -197,7 +197,7 @@ const onConsult = () => {
   text-align: right;
 }
 
-.info-row .money {
+.info-row .hours {
   color: #ee6723;
   font-weight: 600;
 }
@@ -235,7 +235,7 @@ const onConsult = () => {
   flex: 1;
 }
 
-.day-cost {
+.day-task {
   margin-top: 10px;
   font-size: 13px;
   color: #ee6723;

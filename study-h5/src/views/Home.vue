@@ -6,38 +6,38 @@ import 'vant/es/toast/style'
 
 const router = useRouter()
 
-const destination = ref('')
-const budget = ref('')
+const subject = ref('')
+const dailyHours = ref('')
 const days = ref('')
 const showPicker = ref(false)
 
-const hotCities = ['北京', '上海', '广州', '深圳', '成都', '杭州', '西安', '重庆']
+const hotSubjects = ['考研英语', '考研数学', '高等数学', '数据结构', '英语四级', '英语六级', '雅思', '教资']
 
-const cityOptions = hotCities.map((city) => ({ text: city, value: city }))
+const subjectOptions = hotSubjects.map((item) => ({ text: item, value: item }))
 
 const onConfirm = ({ selectedValues }: { selectedValues: string[] }) => {
-  destination.value = selectedValues[0]
+  subject.value = selectedValues[0]
   showPicker.value = false
 }
 
 const startPlan = () => {
-  if(!destination.value) {
-    showToast('请选择目的地')
+  if(!subject.value) {
+    showToast('请选择科目')
     return
-  } 
-  else if (!budget.value) {
-    showToast('请先填写预算')
+  }
+  else if (!dailyHours.value) {
+    showToast('请先填写每日学习时长')
     return
   }
   else if (!days.value) {
-    showToast('请先填写天数')
+    showToast('请先填写备考天数')
     return
   }
   router.push({
     path: '/plan',
     query: {
-      destination: destination.value,
-      budget: budget.value,
+      subject: subject.value,
+      dailyHours: dailyHours.value,
       days: days.value
     }
   })
@@ -46,38 +46,38 @@ const startPlan = () => {
 
 <template>
   <div class="home">
-    <van-nav-bar title="智能旅游助手" />
+    <van-nav-bar title="智能学习规划助手" />
 
     <div class="page-content">
       <van-notice-bar
         class="notice"
         left-icon="info-o"
         :scrollable="false"
-        text="基于 AI 的智能景点介绍与行程规划系统"
+        text="基于 AI 的智能学习规划与备考答疑系统"
       />
 
       <div class="card">
-        <h3 class="card-title">规划你的旅程</h3>
+        <h3 class="card-title">规划你的学习</h3>
         <div class="field-list">
           <van-field
-            v-model="destination"
-            label="目的地"
+            v-model="subject"
+            label="科目"
             readonly
             is-link
-            placeholder="请选择目的地"
+            placeholder="请选择备考科目"
             @click="showPicker = true"
           />
           <van-field
-            v-model="budget"
-            label="预算(元)"
+            v-model="dailyHours"
+            label="每日时长(小时)"
             type="number"
-            placeholder="请输入预算金额"
+            placeholder="请输入每天可学习的小时数"
           />
           <van-field
             v-model="days"
-            label="天数"
+            label="备考天数"
             type="digit"
-            placeholder="请输入旅行天数"
+            placeholder="请输入备考周期（天）"
           />
         </div>
         <van-button round block type="primary" class="plan-btn" @click="startPlan">
@@ -88,22 +88,22 @@ const startPlan = () => {
       <div class="card">
         <h3 class="card-title">快捷入口</h3>
         <van-grid :column-num="2" :border="false">
-          <van-grid-item icon="chat-o" text="AI 对话" @click="router.push('/chat')" />
+          <van-grid-item icon="chat-o" text="AI 答疑" @click="router.push('/chat')" />
           <van-grid-item icon="user-o" text="我的" @click="router.push('/profile')" />
         </van-grid>
       </div>
 
       <div class="card">
-        <h3 class="card-title">热门目的地</h3>
-        <div class="city-tags">
+        <h3 class="card-title">热门科目</h3>
+        <div class="subject-tags">
           <span
-            v-for="city in hotCities"
-            :key="city"
-            class="city-tag"
-            :class="{ active: city === destination }"
-            @click="destination = city"
+            v-for="item in hotSubjects"
+            :key="item"
+            class="subject-tag"
+            :class="{ active: item === subject }"
+            @click="subject = item"
           >
-            {{ city }}
+            {{ item }}
           </span>
         </div>
       </div>
@@ -111,8 +111,8 @@ const startPlan = () => {
 
     <van-popup v-model:show="showPicker" round position="bottom">
       <van-picker
-        :columns="cityOptions"
-        title="选择目的地"
+        :columns="subjectOptions"
+        title="选择科目"
         @confirm="onConfirm"
         @cancel="showPicker = false"
       />
@@ -162,13 +162,13 @@ const startPlan = () => {
   --van-button-primary-border-color: #4d80f0;
 }
 
-.city-tags {
+.subject-tags {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
 
-.city-tag {
+.subject-tag {
   text-align: center;
   padding: 8px 0;
   border-radius: 999px;
@@ -178,7 +178,7 @@ const startPlan = () => {
   cursor: pointer;
 }
 
-.city-tag.active {
+.subject-tag.active {
   background: #4d80f0;
   color: #fff;
 }

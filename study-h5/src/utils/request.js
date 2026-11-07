@@ -3,8 +3,8 @@ import axios from "axios";
 //创建axios实例
 
 const request  = axios.create({
-    baseURL:'http://localhost:3400/api/travel',
-    timeout: 60000,
+    baseURL:'http://localhost:3400/api/study',
+    timeout: 180000,
     headers: {
         'Content-Type': 'application/json'
     },
@@ -47,7 +47,7 @@ export const post = (url, data) => {
 export const fetchStream = async(url, data, onChunk, onComplete, onError) => {
    try {
  const controller = new AbortController();  // 需要中断的时候请求
-    const response = await fetch(`http://localhost:3400/api/travel${url}`, {
+    const response = await fetch(`http://localhost:3400/api/study${url}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

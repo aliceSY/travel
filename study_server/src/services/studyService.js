@@ -3,7 +3,7 @@ import { HumanMessage , SystemMessage} from '@langchain/core/messages';
 import 'dotenv/config';
 
 
-class TravelService {
+class StudyService {
     constructor() {
        this.llm = null;
        this.init();
@@ -31,54 +31,51 @@ class TravelService {
 
 
     //提示词
-    getTravelPrompt(budget, days, destination) {
+    getStudyPrompt(dailyHours, days, subject) {
         return new HumanMessage({
-            content: `你是一个专业的旅行规划师，你的任务是根据用户的需求，生成一个符合要求的旅行计划。用户需求：预算${budget}元，${days}天，目的地${destination}。请严格按以下 JSON 结构输出，用 \`\`\`json \`\`\` 代码块包裹，不要输出结构之外的其他内容：
+            content: `你是一个专业的学习规划师，你的任务是根据学生的情况，生成一个科学可执行的学习计划。学生情况：备考科目${subject}，备考周期${days}天，每天可学习${dailyHours}小时。请严格按以下 JSON 结构输出，用 \`\`\`json \`\`\` 代码块包裹，不要输出结构之外的其他内容：
 \`\`\`json
 {
-  "旅行计划": {
+  "学习计划": {
     "基本信息": {
-      "目的地": "目的地名称",
-      "行程安排": "如：3天2晚",
-      "总预算": 3000,
-      "出行方式": "如：高铁往返",
-      "建议出行季节": "如：春秋季"
+      "科目": "科目名称",
+      "备考周期": "如：30天",
+      "每日学习时长": "如：4小时",
+      "基础要求": "如：有四级基础"
     },
-    "预算分配": {
-      "交通": 800,
-      "住宿": 600,
-      "餐饮": 400,
-      "门票": 300,
-      "备用金": 200
+    "时长分配": {
+      "基础巩固": 40,
+      "强化训练": 50,
+      "真题演练": 30,
+      "冲刺复盘": 20
     },
-    "每日行程": [
+    "每日计划": [
       {
         "天数": "第1天",
         "主题": "当天主题",
-        "行程": [
-          { "时间": "08:00-09:30", "安排": "具体安排" }
+        "安排": [
+          { "时间": "08:00-10:00", "内容": "具体学习内容" }
         ],
-        "当日花费预估": "如：门票62元+餐饮130元"
+        "当日学习任务": "如：背单词100个+精读一篇阅读"
       }
     ],
-    "实用贴士": ["贴士1", "贴士2"]
+    "学习建议": ["建议1", "建议2"]
   }
 }
 \`\`\`
-要求：每日行程必须完整覆盖全部 ${days} 天；预算分配各项金额之和不超过总预算。`,
+要求：每日计划必须完整覆盖全部 ${days} 天；时长分配各项之和不超过总学习时长（${dailyHours} × ${days} 小时）。`,
         });
     }
      //推荐
-    async recommend(budget, days, destination) {
-        if(budget < 100 || days < 1 || days > 30) {
-            throw new Error('Budget, days, and destination must be valid!');
+    async recommend(dailyHours, days, subject) {
+        if(dailyHours < 1 || dailyHours > 12 || days < 1 || days > 365) {
+            throw new Error('Daily hours must be 1-12 and days must be 1-365!');
         }
         //提示词
-        const prompt = this.getTravelPrompt(budget, days, destination);
-        //调用大模型生成推荐
+        const prompt = this.getStudyPrompt(dailyHours, days, subject);
+        //调用大模型生成学习计划
         try {
             const response = await this.llm.invoke([prompt]);
-            console.log(response);
             return response;
         } catch (error) {
             console.error('Error invoking LLM:', error);
@@ -89,7 +86,7 @@ class TravelService {
     async chat(message, streamCallback) {
         const messages = [
             new SystemMessage({
-                content: '你是一个旅游规划师，你的任务是根据用户的需求，生成一个符合要求的旅游计划。请用中文回答',
+                content: '你是一个专业的学习规划师，擅长根据学生的备考目标、基础和可用时间制定复习计划、推荐学习方法和资料。请用中文回答',
             }),
            new HumanMessage(message),
         ]
@@ -117,7 +114,7 @@ class TravelService {
             message: error.message,
            }
         }
-}  
-} 
+}
+}
 
-export default  new TravelService();
+export default  new StudyService();
