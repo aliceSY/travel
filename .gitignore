@@ -16,3 +16,6 @@ logs/
 # build output
 dist/
 dist-ssr/
+
+# db
+study.db

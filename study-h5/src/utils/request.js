@@ -14,6 +14,10 @@ const request  = axios.create({
 // 请求拦截器
 request.interceptors.request.use(
     config => {
+           const token = localStorage.getItem('token')
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`  // 没有就不带，别发空字符串
+    }
         return config
     },
     error => {
@@ -47,14 +51,20 @@ export const post = (url, data) => {
 export const fetchStream = async(url, data, onChunk, onComplete, onError) => {
    try {
  const controller = new AbortController();  // 需要中断的时候请求
+ const token = localStorage.getItem('token');
     const response = await fetch(`http://localhost:3400/api/study${url}`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
         },
         body: JSON.stringify(data),
         signal: controller.signal,
     })
+
+    if(!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder('utf-8');

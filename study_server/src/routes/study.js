@@ -3,6 +3,8 @@ import StudyService from '../services/studyService.js';
 import { createStream } from '../utils/createStream.js';
 const router = express.Router();
 
+router.get('/health', (req, res) => res.json({ success: true, message: 'ok' }))
+
 router.post('/chat', async(req, res) => {
     const {message} = req.body;
     if(!message) {
